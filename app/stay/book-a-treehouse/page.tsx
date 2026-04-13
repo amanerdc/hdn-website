@@ -183,7 +183,7 @@ export default function BookATreehousePage() {
                   <Leaf size={14} />
                   HDN Treehouses <DiamondMinus size={12} />
                 </span>
-                <h1 className="mt-5 max-w-4xl text-5xl font-semibold leading-[0.95] text-foreground md:text-6xl">
+                <h1 className="mt-5 max-w-4xl text-4xl font-semibold leading-[0.95] text-foreground sm:text-5xl md:text-6xl">
                   Treehouses woven into the story of HDN Integrated Farm
                 </h1>
                 <p className="mt-5 max-w-2xl text-base leading-8 text-muted-foreground md:text-lg">
@@ -205,7 +205,50 @@ export default function BookATreehousePage() {
                 </div>
               </div>
 
-              <div className="relative mt-12 min-h-[700px] motion-fade-up delay-3 md:min-h-[760px] lg:min-h-[780px]">
+              <div className="mt-10 space-y-6 md:hidden">
+                <div className="rounded-[2rem] border border-white/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(241,247,239,0.92))] p-4 shadow-[0_16px_40px_rgba(33,74,52,0.10)]">
+                  <img
+                    src="/treehouse-element.png"
+                    alt="Illustrated HDN treehouse concept integrated with pili trees"
+                    className="h-auto w-full object-contain drop-shadow-[0_18px_28px_rgba(33,74,52,0.14)]"
+                  />
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {[
+                    ['What They Are', 'Stays integrated into sturdy pili trees.'],
+                    ['Why Stay', 'A calmer cabin-in-the-woods experience.'],
+                    ['The Mood', 'Quiet mornings, filtered light, and fresh air.'],
+                    ['Around the Stay', 'PolliNights, Pick & Pay, and more.'],
+                  ].map(([title, description]) => (
+                    <div
+                      key={title}
+                      className="rounded-[1.4rem] border border-white/75 bg-white/78 p-4 shadow-[0_12px_28px_rgba(33,74,52,0.08)] backdrop-blur-md"
+                    >
+                      <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">{title}</p>
+                      <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="grid gap-3">
+                  {[
+                    ['Nature-first stay', 'Integrated into pili trees'],
+                    ['Designed to slow down', 'For rest, romance, and fresh air'],
+                    ['Close to farm fun', 'PolliNights, Pick & Pay, and more'],
+                  ].map(([title, description]) => (
+                    <div
+                      key={title}
+                      className="rounded-[1.4rem] border border-white/70 bg-white/68 p-4 shadow-[0_12px_28px_rgba(33,74,52,0.08)] backdrop-blur-md"
+                    >
+                      <p className="text-base font-semibold text-foreground">{title}</p>
+                      <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="relative mt-12 hidden min-h-[700px] motion-fade-up delay-3 md:block md:min-h-[760px] lg:min-h-[780px]">
                 <div className="absolute inset-x-[16%] top-[14%] h-[46%] rounded-full bg-primary/10 blur-3xl" />
                 <div className="absolute left-0 top-6 z-20 max-w-[300px] rounded-[1.75rem] border border-white/75 bg-white/74 p-5 shadow-[0_16px_40px_rgba(33,74,52,0.12)] backdrop-blur-md md:left-6 md:top-10">
                   <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">What They Are</p>
