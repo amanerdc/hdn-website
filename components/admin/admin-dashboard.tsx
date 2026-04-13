@@ -15,7 +15,7 @@ type AdminContentMap = {
 
 type AdminDashboardProps = {
   initialData: AdminContentMap;
-  username: string;
+  email: string;
 };
 
 function getValueByPath(target: Record<string, unknown>, path: string) {
@@ -46,7 +46,7 @@ function setValueByPath(target: Record<string, unknown>, path: string, value: un
   return clone;
 }
 
-export function AdminDashboard({ initialData, username }: AdminDashboardProps) {
+export function AdminDashboard({ initialData, email }: AdminDashboardProps) {
   const router = useRouter();
   const resourceKeys = Object.keys(adminResourceDefinitions) as ResourceKey[];
   const [selectedResource, setSelectedResource] = useState<ResourceKey>('products');
@@ -209,7 +209,7 @@ export function AdminDashboard({ initialData, username }: AdminDashboardProps) {
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.22em] text-primary">HDN Admin</p>
             <h1 className="mt-2 text-4xl font-semibold text-foreground">Content Dashboard</h1>
-            <p className="mt-2 text-sm leading-7 text-muted-foreground">Signed in as {username}. Manage Supabase content and upload images to ImageKit from one place.</p>
+            <p className="mt-2 text-sm leading-7 text-muted-foreground">Signed in as {email}. Manage Supabase content and upload images to ImageKit from one place.</p>
           </div>
           <Button variant="outline" onClick={handleLogout}><LogOut size={16} />Sign out</Button>
         </div>

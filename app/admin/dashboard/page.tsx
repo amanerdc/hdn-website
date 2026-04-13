@@ -22,5 +22,5 @@ export default async function AdminDashboardPage() {
 
   const initialData = await getAllAdminContent();
 
-  return <AdminDashboard initialData={initialData} username={session.username} />;
+  return <AdminDashboard initialData={initialData} email={session.username} />;
 }
