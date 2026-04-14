@@ -110,7 +110,7 @@ async function fetchRows<T>(table: string, fallback: T, query?: (builder: any) =
 }
 
 export async function getFarmInfo(): Promise<FarmInfo> {
-  const record = await fetchRows<FarmInfoRecord | null>('farm_info', null, (builder) => builder.limit(1).maybeSingle());
+  const record = await fetchRows<FarmInfoRecord | null>('farm_info', null, (builder) => builder.select('*').limit(1).maybeSingle());
   return normalizeFarmInfo(record);
 }
 
@@ -121,7 +121,7 @@ export async function getProducts(): Promise<Product[]> {
 }
 
 export async function getEvents(): Promise<FarmEvent[]> {
-  return fetchRows<FarmEvent[]>('events', fallbackEvents, (builder) => builder.order('date', { ascending: true }).order('id', { ascending: true }));
+  return fetchRows<FarmEvent[]>('events', fallbackEvents, (builder) => builder.select('*').order('date', { ascending: true }).order('id', { ascending: true }));
 }
 
 export async function getActivities(): Promise<FarmActivity[]> {
@@ -137,11 +137,11 @@ export async function getPickAndPayDates(): Promise<PickAndPayDate[]> {
 }
 
 export async function getTesdaCourses(): Promise<TesdaCourse[]> {
-  return fetchRows<TesdaCourse[]>('tesda_courses', fallbackTesdaCourses, (builder) => builder.order('title', { ascending: true }));
+  return fetchRows<TesdaCourse[]>('tesda_courses', fallbackTesdaCourses, (builder) => builder.select('*').order('title', { ascending: true }));
 }
 
 export async function getBlogPosts(): Promise<BlogPost[]> {
-  return fetchRows<BlogPost[]>('blog_posts', fallbackBlogPosts, (builder) => builder.order('date', { ascending: false }).order('id', { ascending: false }));
+  return fetchRows<BlogPost[]>('blog_posts', fallbackBlogPosts, (builder) => builder.select('*').order('date', { ascending: false }).order('id', { ascending: false }));
 }
 
 export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> {

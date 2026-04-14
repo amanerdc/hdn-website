@@ -1,11 +1,52 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { DiamondMinus, DiamondPlus, Menu, X } from 'lucide-react';
+import { farmInfo as fallbackFarmInfo, type FarmInfo } from '@/lib/farm-data';
 
-export function Navigation() {
+type NavigationProps = {
+  showLegend?: boolean;
+};
+
+export function Navigation({ showLegend = true }: NavigationProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [farmInfo, setFarmInfo] = useState<FarmInfo>(fallbackFarmInfo);
+  const [isAdminSignedIn, setIsAdminSignedIn] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    let isMounted = true;
+
+    fetch('/api/public/farm-info', { cache: 'no-store' })
+      .then((response) => response.json())
+      .then((payload) => {
+        if (isMounted && payload?.farmInfo) {
+          setFarmInfo(payload.farmInfo);
+        }
+      })
+      .catch(() => undefined);
+
+    fetch('/api/admin/session', { cache: 'no-store' })
+      .then((response) => response.json())
+      .then((payload) => {
+        if (isMounted && payload?.authenticated) {
+          setIsAdminSignedIn(true);
+        }
+      })
+      .catch(() => undefined);
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  async function handleAdminLogout() {
+    await fetch('/api/admin/logout', { method: 'POST' });
+    setIsAdminSignedIn(false);
+    router.refresh();
+  }
 
   const navItems = [
     { href: '/', label: 'Home' },
@@ -66,13 +107,13 @@ export function Navigation() {
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
       <div className="section-shell">
         <div className="relative flex min-h-20 items-center justify-between gap-6">
-          <Link href="/" className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-3" aria-label="Go to homepage">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/85 shadow-[0_10px_24px_rgba(33,74,52,0.10)]">
               <img src="/logo.png" alt="HDN Integrated Farm Logo" className="h-9 w-9 object-contain" />
             </div>
             <div>
-              <p className="font-display text-2xl font-semibold leading-none text-primary">HDN</p>
-              <p className="text-xs font-semibold uppercase tracking-[0.26em] text-muted-foreground">Integrated Farm</p>
+              <p className="font-display text-xl font-semibold leading-none text-primary sm:text-2xl">{farmInfo.name}</p>
+              <p className="mt-1 text-[11px] font-medium leading-tight text-muted-foreground sm:text-xs">{farmInfo.tagline}</p>
             </div>
           </Link>
 
@@ -145,24 +186,46 @@ export function Navigation() {
         )}
       </div>
 
-      <div className="border-t border-white/45 bg-white/80 py-2.5 backdrop-blur-xl">
-        <div className="section-shell flex flex-wrap items-center justify-between gap-4 text-sm text-foreground/85">
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="font-semibold">Legend:</span>
-            <span className="inline-flex items-center gap-2">
-              <DiamondPlus size={14} className="text-primary" />
-              Available
-            </span>
-            <span className="inline-flex items-center gap-2">
-              <DiamondMinus size={14} className="text-muted-foreground" />
-              Coming soon
-            </span>
+      {showLegend ? (
+        <div className="border-t border-white/45 bg-white/80 py-2.5 backdrop-blur-xl">
+          <div className="section-shell flex flex-wrap items-center justify-between gap-4 text-sm text-foreground/85">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="font-semibold">Legend:</span>
+              <span className="inline-flex items-center gap-2">
+                <DiamondPlus size={14} className="text-primary" />
+                Available
+              </span>
+              <span className="inline-flex items-center gap-2">
+                <DiamondMinus size={14} className="text-muted-foreground" />
+                Coming soon
+              </span>
+            </div>
+            <p className="max-w-3xl text-xs leading-5 text-muted-foreground md:text-sm">
+              Please note: Images of unreleased products or experiences are conceptual visualizations, not actual photographs.
+            </p>
           </div>
-          <p className="max-w-3xl text-xs leading-5 text-muted-foreground md:text-sm">
-            Please note: Images of unreleased products or experiences are conceptual visualizations, not actual photographs.
-          </p>
         </div>
-      </div>
+      ) : null}
+
+      {isAdminSignedIn ? (
+        <div className="border-t border-primary/20 bg-primary/8 py-2.5">
+          <div className="section-shell flex items-center justify-between gap-4">
+            <p className="text-sm font-medium text-primary">Admin session active</p>
+            <div className="flex items-center gap-2">
+              <Link href="/admin/dashboard" className="rounded-full border border-primary/30 bg-white/80 px-4 py-1.5 text-sm font-semibold text-primary transition hover:bg-primary hover:text-primary-foreground">
+                Go to Dashboard
+              </Link>
+              <button
+                type="button"
+                onClick={() => void handleAdminLogout()}
+                className="rounded-full border border-primary/30 bg-white/80 px-4 py-1.5 text-sm font-semibold text-primary transition hover:bg-primary hover:text-primary-foreground"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </nav>
   );
 }

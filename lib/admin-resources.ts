@@ -17,7 +17,7 @@ export type ResourceKey =
   | 'tesdaCourses'
   | 'blogPosts';
 
-export type FieldType = 'text' | 'textarea' | 'number' | 'boolean' | 'date' | 'time' | 'image' | 'email';
+export type FieldType = 'text' | 'textarea' | 'number' | 'boolean' | 'date' | 'time' | 'image' | 'email' | 'select';
 
 export type AdminField = {
   path: string;
@@ -26,6 +26,8 @@ export type AdminField = {
   required?: boolean;
   disabledOnEdit?: boolean;
   placeholder?: string;
+  helperText?: string;
+  options?: string[];
 };
 
 export type ResourceShapeMap = {
@@ -124,10 +126,17 @@ export const adminResourceDefinitions: {
     emptyItem: { id: 0, name: '', category: '', description: '', price: '0.00', unit: '', image: '', availability: true, inStock: 0 },
     fields: [
       { path: 'name', label: 'Name', type: 'text', required: true },
-      { path: 'category', label: 'Category', type: 'text', required: true },
+      {
+        path: 'category',
+        label: 'Category',
+        type: 'select',
+        required: true,
+        options: ['Fruits', 'Vegetables', 'Food & Beverage', 'Agri-products', 'Nursery', 'Livestock'],
+        helperText: 'Choose the product group used in the catalog and sort view.',
+      },
       { path: 'description', label: 'Description', type: 'textarea', required: true },
-      { path: 'price', label: 'Price', type: 'text', required: true },
-      { path: 'unit', label: 'Unit', type: 'text', required: true },
+      { path: 'price', label: 'Price', type: 'text', required: true, helperText: 'Use a numeric amount like 150.00.' },
+      { path: 'unit', label: 'Unit', type: 'text', required: true, helperText: 'Examples: per kg, per head, per piece.' },
       { path: 'image', label: 'Image URL', type: 'image', required: true },
       { path: 'availability', label: 'Available', type: 'boolean' },
       { path: 'inStock', label: 'In stock', type: 'number', required: true },
@@ -261,7 +270,6 @@ export const adminResourceDefinitions: {
     primaryKey: 'id',
     emptyItem: { id: '', title: '', duration: '', focus: '', image: '', availability: false },
     fields: [
-      { path: 'id', label: 'ID', type: 'text', required: true, disabledOnEdit: true },
       { path: 'title', label: 'Title', type: 'text', required: true },
       { path: 'duration', label: 'Duration', type: 'text', required: true },
       { path: 'focus', label: 'Focus', type: 'textarea', required: true },

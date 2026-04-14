@@ -11,7 +11,7 @@ export function Footer() {
   useEffect(() => {
     let isMounted = true;
 
-    fetch('/api/public/farm-info')
+    fetch('/api/public/farm-info', { cache: 'no-store' })
       .then((response) => response.json())
       .then((payload) => {
         if (isMounted && payload?.farmInfo) {
@@ -47,7 +47,7 @@ export function Footer() {
             <h4 className="mb-4 font-display text-2xl font-semibold">Explore</h4>
             <ul className="space-y-3 text-sm text-primary-foreground/82">
               <li><Link href="/products" className="transition hover:text-white">Products</Link></li>
-              <li><Link href="/bloomquest" className="transition hover:text-white">BloomQuest</Link></li>
+              <li><Link href="/pollinights" className="transition hover:text-white">PolliNights</Link></li>
               <li><Link href="/pick-and-pay" className="transition hover:text-white">Pick & Pay</Link></li>
               <li><Link href="/events" className="transition hover:text-white">Events</Link></li>
               <li><Link href="/blog" className="transition hover:text-white">Blog</Link></li>

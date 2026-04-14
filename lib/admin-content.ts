@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { revalidatePath } from 'next/cache';
+import { randomUUID } from 'node:crypto';
 import { adminResourceDefinitions, type ResourceKey, type ResourceShapeMap } from '@/lib/admin-resources';
 import { getSupabaseServerClient } from '@/lib/supabase';
 
@@ -16,6 +17,64 @@ function normalizeItem<T extends ResourceKey>(resource: T, record: Record<string
 function serializeItem<T extends ResourceKey>(resource: T, item: ResourceShapeMap[T]) {
   const definition = getDefinition(resource);
   return definition.toRecord ? definition.toRecord(item) : (item as Record<string, unknown>);
+}
+
+function createSlug(value: string) {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function getGeneratedPrimaryKey<T extends ResourceKey>(resource: T, payload: Record<string, unknown>) {
+  const definition = getDefinition(resource);
+
+  if (definition.primaryKey === 'id') {
+    return undefined;
+  }
+
+  const currentValue = payload[definition.primaryKey];
+  if (typeof currentValue === 'string' && currentValue.trim()) {
+    return currentValue.trim();
+  }
+
+  const sourceValue = String(payload.title ?? payload.name ?? payload.slug ?? payload[definition.primaryKey] ?? 'item');
+  const generated = createSlug(sourceValue) || 'item';
+  return `${generated}-${randomUUID().slice(0, 8)}`;
+}
+
+async function prepareCreatePayload<T extends ResourceKey>(resource: T, item: ResourceShapeMap[T]) {
+  const definition = getDefinition(resource);
+  const supabase = getSupabaseServerClient();
+  const payload = serializeItem(resource, item);
+
+  if (definition.singleton) {
+    return payload;
+  }
+
+  if (definition.primaryKey === 'id') {
+    const { data, error } = await supabase
+      .from(definition.table)
+      .select(definition.primaryKey)
+      .order(definition.primaryKey, { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    const maxPrimaryValue = Number((data as Record<string, unknown> | null)?.[definition.primaryKey] ?? 0);
+    payload.id = Number.isFinite(maxPrimaryValue) && maxPrimaryValue > 0 ? maxPrimaryValue + 1 : 1;
+  } else {
+    const generatedPrimaryKey = getGeneratedPrimaryKey(resource, payload);
+    if (generatedPrimaryKey) {
+      payload[definition.primaryKey] = generatedPrimaryKey;
+    }
+  }
+
+  return payload;
 }
 
 export async function getAdminResourceItems<T extends ResourceKey>(resource: T): Promise<ResourceShapeMap[T][]> {
@@ -42,11 +101,7 @@ export async function getAdminResourceItems<T extends ResourceKey>(resource: T):
 export async function createAdminResourceItem<T extends ResourceKey>(resource: T, item: ResourceShapeMap[T]) {
   const definition = getDefinition(resource);
   const supabase = getSupabaseServerClient();
-  const payload = serializeItem(resource, item);
-
-  if (definition.primaryKey === 'id' && !definition.singleton) {
-    delete payload.id;
-  }
+  const payload = await prepareCreatePayload(resource, item);
 
   const { data, error } = await supabase.from(definition.table).insert(payload).select('*').single();
   if (error) throw new Error(error.message);
